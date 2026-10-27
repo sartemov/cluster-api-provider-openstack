@@ -23,6 +23,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/availabilityzones"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/subnets"
@@ -357,7 +358,13 @@ func (r *OpenStackClusterReconciler) reconcileNormal(ctx context.Context, scope 
 
 	availabilityZones, err := computeService.GetAvailabilityZones()
 	if err != nil {
-		return ctrl.Result{}, err
+		scope.Logger().Error(err, "Failed to get availability zones, using hacky fallback")
+		availabilityZones = []availabilityzones.AvailabilityZone{
+			{
+				ZoneName:  "ru-moscow-1a",
+				ZoneState: availabilityzones.ZoneState{Available: true},
+			},
+		}
 	}
 
 	// Populate failure domains only during initial provisioning. Before failure
