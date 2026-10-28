@@ -90,22 +90,28 @@ func NewComputeClient(providerClient *gophercloud.ProviderClient, providerClient
 		return nil, fmt.Errorf("failed to create compute service client: %v", err)
 	}
 
+	// Does not works in cloud.ru, commented out.
 	// Find the minimum and maximum versions supported by the server
-	serviceMin, serviceMax, err := openstackutil.GetSupportedMicroversions(*compute)
-	if err != nil {
-		return nil, fmt.Errorf("unable to verify compatible server version: %w", err)
-	}
+	// serviceMin, serviceMax, err := openstackutil.GetSupportedMicroversions(*compute)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("unable to verify compatible server version: %w", err)
+	// }
 
-	supported, err := openstackutil.MicroversionSupported(MinimumNovaMicroversion, serviceMin, serviceMax)
-	if err != nil {
-		return nil, fmt.Errorf("unable to verify compatible server version: %w", err)
-	}
-	if !supported {
-		return nil, fmt.Errorf("no compatible server version. CAPO requires %s, but min=%s and max=%s",
-			MinimumNovaMicroversion, serviceMin, serviceMax)
-	}
+	// supported, err := openstackutil.MicroversionSupported(MinimumNovaMicroversion, serviceMin, serviceMax)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("unable to verify compatible server version: %w", err)
+	// }
+	// if !supported {
+	// 	return nil, fmt.Errorf("no compatible server version. CAPO requires %s, but min=%s and max=%s",
+	// 		MinimumNovaMicroversion, serviceMin, serviceMax)
+	// }
 
 	compute.Microversion = MinimumNovaMicroversion
+	// hardcode hack begin
+	// TODO: find another way or get support from cloud.ru.
+	serviceMin := NovaTagging
+	serviceMax := NovaTagging
+	// hardcode hack end
 
 	return &computeClient{client: compute, minVersion: serviceMin, maxVersion: serviceMax}, nil
 }
