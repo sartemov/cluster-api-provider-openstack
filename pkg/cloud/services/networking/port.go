@@ -244,9 +244,10 @@ func (s *Service) EnsurePort(eventObject runtime.Object, portSpec *infrav1.Resol
 
 	var builder ports.CreateOptsBuilder
 	createOpts := ports.CreateOpts{
-		Name:                  portSpec.Name,
-		NetworkID:             portSpec.NetworkID,
-		Description:           portSpec.Description,
+		Name:      portSpec.Name,
+		NetworkID: portSpec.NetworkID,
+		// Does not works on cloud.ru
+		// Description:           portSpec.Description,
 		AdminStateUp:          portSpec.AdminStateUp,
 		MACAddress:            ptr.Deref(portSpec.MACAddress, ""),
 		AllowedAddressPairs:   addressPairs,
