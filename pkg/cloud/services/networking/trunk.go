@@ -36,17 +36,18 @@ const (
 	retryIntervalSubportDelete = 30 * time.Second
 )
 
+// cloud.ru does not support extension list, assuming that it does not support trunks.
 func (s *Service) GetTrunkSupport() (bool, error) {
-	allExts, err := s.client.ListExtensions()
-	if err != nil {
-		return false, err
-	}
+	// allExts, err := s.client.ListExtensions()
+	// if err != nil {
+	// 	return false, err
+	// }
 
-	for _, ext := range allExts {
-		if ext.Alias == "trunk" {
-			return true, nil
-		}
-	}
+	// for _, ext := range allExts {
+	// 	if ext.Alias == "trunk" {
+	// 		return true, nil
+	// 	}
+	// }
 	return false, nil
 }
 
