@@ -18,7 +18,9 @@ package clients
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
@@ -66,18 +68,65 @@ type lbClient struct {
 	serviceClient *gophercloud.ServiceClient
 }
 
+// Dirty workaround to get the correct endpoint from the service catalog for the loadbalancer service in cloud.ru begin.
+
+// custom init with custom endpoint for cloud.ru.
+func initClientOpts(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts, clientType string, version int, ep string) (*gophercloud.ServiceClient, error) {
+	sc := new(gophercloud.ServiceClient)
+
+	eo.ApplyDefaults(clientType)
+	if eo.Version != 0 && eo.Version != version {
+		return sc, errors.New("conflict between requested service major version and manually set version")
+	}
+
+	eo.Version = version
+	sc.ProviderClient = client
+	sc.Endpoint = ep
+	sc.Type = clientType
+	return sc, nil
+}
+
+// NewLoadBalancerV2Custom creates a ServiceClient that may be used to access the v2
+// load balancer service with a custom endpoint for cloud.ru.
+func NewLoadBalancerV2Custom(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts, ep string) (*gophercloud.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "load-balancer", 2, ep)
+
+	// Fixes edge case having an OpenStack lb endpoint with trailing version number.
+	endpoint := strings.ReplaceAll(sc.Endpoint, "v2.0/", "")
+
+	sc.ResourceBase = endpoint + "v2.0/"
+	return sc, err
+}
+
 // NewLbClient returns a new loadbalancer client.
 func NewLbClient(providerClient *gophercloud.ProviderClient, providerClientOpts *clientconfig.ClientOpts) (LbClient, error) {
-	loadbalancerClient, err := openstack.NewLoadBalancerV2(providerClient, gophercloud.EndpointOpts{
+	ep := "https://elb.ru-moscow-1.hc.sbercloud.ru/"
+
+	loadbalancerClient, err := NewLoadBalancerV2Custom(providerClient, gophercloud.EndpointOpts{
 		Region:       providerClientOpts.RegionName,
 		Availability: clientconfig.GetEndpointType(providerClientOpts.EndpointType),
-	})
+	}, ep)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create load balancer service client: %v", err)
 	}
 
 	return &lbClient{loadbalancerClient}, nil
 }
+
+// Dirty workaround to get the correct endpoint from the service catalog for the loadbalancer service in cloud.ru ends.
+
+// NewLbClient returns a new loadbalancer client.
+// func NewLbClient(providerClient *gophercloud.ProviderClient, providerClientOpts *clientconfig.ClientOpts) (LbClient, error) {
+// 	loadbalancerClient, err := openstack.NewLoadBalancerV2(providerClient, gophercloud.EndpointOpts{
+// 		Region:       providerClientOpts.RegionName,
+// 		Availability: clientconfig.GetEndpointType(providerClientOpts.EndpointType),
+// 	})
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to create load balancer service client: %v", err)
+// 	}
+
+// 	return &lbClient{loadbalancerClient}, nil
+// }
 
 func (l lbClient) CreateLoadBalancer(opts loadbalancers.CreateOptsBuilder) (*loadbalancers.LoadBalancer, error) {
 	mc := metrics.NewMetricPrometheusContext("loadbalancer", "create")
