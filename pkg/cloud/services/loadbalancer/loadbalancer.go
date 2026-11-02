@@ -411,13 +411,14 @@ func (s *Service) getOrCreateAPILoadBalancer(openStackCluster *infrav1.OpenStack
 	}
 
 	lbCreateOpts := loadbalancers.CreateOpts{
-		Name:         loadBalancerName,
-		VipSubnetID:  vipSubnetID,
-		VipNetworkID: vipNetworkID,
-		Description:  names.GetDescription(clusterResourceName),
-		Provider:     lbProvider,
-		FlavorID:     lbFlavorID,
-		Tags:         openStackCluster.Spec.Tags,
+		Name:        loadBalancerName,
+		VipSubnetID: vipSubnetID,
+		// Does not suported by cloud.ru
+		// VipNetworkID: vipNetworkID,
+		Description: names.GetDescription(clusterResourceName),
+		Provider:    lbProvider,
+		FlavorID:    lbFlavorID,
+		Tags:        openStackCluster.Spec.Tags,
 	}
 	if availabilityZone != nil {
 		lbCreateOpts.AvailabilityZone = *availabilityZone
