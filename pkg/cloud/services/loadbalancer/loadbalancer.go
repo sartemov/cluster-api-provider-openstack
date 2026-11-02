@@ -475,6 +475,7 @@ func (s *Service) reconcileAPILoadBalancerListener(lb *loadbalancers.LoadBalance
 // getOrCreateListener returns an existing listener for the given loadbalancer
 // and port if it already exists, or creates a new one if it does not.
 func (s *Service) getOrCreateListener(openStackCluster *infrav1.OpenStackCluster, listenerName, lbID string, allowedCIDRs []string, port int) (*listeners.Listener, error) {
+	s.scope.Logger().V(2).Info("Cheking if listener exists", "name", listenerName)
 	listener, err := s.checkIfListenerExists(listenerName)
 	if err != nil {
 		return nil, err
