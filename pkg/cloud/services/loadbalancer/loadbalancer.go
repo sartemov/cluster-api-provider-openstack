@@ -135,6 +135,7 @@ func (s *Service) ReconcileLoadBalancer(openStackCluster *infrav1.OpenStackClust
 	if lb.ProvisioningStatus != loadBalancerProvisioningStatusActive {
 		var err error
 		lbID := lb.ID
+		s.scope.Logger().V(3).Info("Waiting for load balancer to become active", "name", loadBalancerName)
 		lb, err = s.waitForLoadBalancerActive(lbID)
 		if err != nil {
 			return false, fmt.Errorf("load balancer %q with id %s is not active after timeout: %v", loadBalancerName, lbID, err)
@@ -439,6 +440,7 @@ func (s *Service) getOrCreateAPILoadBalancer(openStackCluster *infrav1.OpenStack
 
 // reconcileAPILoadBalancerListener ensures that the listener on the given port exists and is configured correctly.
 func (s *Service) reconcileAPILoadBalancerListener(lb *loadbalancers.LoadBalancer, openStackCluster *infrav1.OpenStackCluster, clusterResourceName string, port int) error {
+	s.scope.Logger().V(3).Info("Reconciling load balancer listener")
 	loadBalancerName := getLoadBalancerName(clusterResourceName)
 	lbPortObjectsName := fmt.Sprintf("%s-%d", loadBalancerName, port)
 
