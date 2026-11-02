@@ -29,6 +29,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/loadbalancer/v2/loadbalancers"
 	"github.com/gophercloud/gophercloud/v2/openstack/loadbalancer/v2/monitors"
 	"github.com/gophercloud/gophercloud/v2/openstack/loadbalancer/v2/pools"
+	"github.com/gophercloud/gophercloud/v2/openstack/loadbalancer/v2/providers"
 	"k8s.io/apimachinery/pkg/util/wait"
 	utilsnet "k8s.io/utils/net"
 	"k8s.io/utils/ptr"
@@ -350,10 +351,19 @@ func (s *Service) getOrCreateAPILoadBalancer(openStackCluster *infrav1.OpenStack
 		s.scope.Logger().V(2).Info("Creating load balancer in subnet", "subnetID", vipSubnetID, "name", loadBalancerName)
 	}
 
-	providers, err := s.loadbalancerClient.ListLoadBalancerProviders()
-	if err != nil {
-		return nil, err
-	}
+	// cloud.ru hack starts.
+
+	// providers, err := s.loadbalancerClient.ListLoadBalancerProviders()
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	providers := []providers.Provider{{
+		Name:        "vlb",
+		Description: "vlb cloud ru provider",
+	}}
+
+	// cloud.ru hack ends.
 
 	// Choose the selected provider and flavor if set in cluster spec, if not, omit these fields and Octavia will use the default values.
 	lbProvider := ""
