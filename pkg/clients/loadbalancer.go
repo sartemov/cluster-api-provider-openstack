@@ -23,7 +23,7 @@ import (
 	"strings"
 
 	"github.com/gophercloud/gophercloud/v2"
-	"github.com/gophercloud/gophercloud/v2/openstack"
+	// "github.com/gophercloud/gophercloud/v2/openstack"
 	"github.com/gophercloud/gophercloud/v2/openstack/loadbalancer/v2/apiversions"
 	"github.com/gophercloud/gophercloud/v2/openstack/loadbalancer/v2/flavors"
 	"github.com/gophercloud/gophercloud/v2/openstack/loadbalancer/v2/listeners"
