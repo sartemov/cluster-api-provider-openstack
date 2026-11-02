@@ -166,17 +166,20 @@ func (s *Service) ReconcileLoadBalancer(openStackCluster *infrav1.OpenStackClust
 		}
 	}
 
-	allowedCIDRsSupported, err := s.isAllowsCIDRSSupported(lb)
-	if err != nil {
-		return false, err
-	}
+	// remove allowed CIDR support for cloud.ru
+	lbStatus.AllowedCIDRs = nil
 
-	// AllowedCIDRs will be nil if allowed CIDRs is not supported by the Octavia provider
-	if allowedCIDRsSupported {
-		lbStatus.AllowedCIDRs = getCanonicalAllowedCIDRs(openStackCluster)
-	} else {
-		lbStatus.AllowedCIDRs = nil
-	}
+	// allowedCIDRsSupported, err := s.isAllowsCIDRSSupported(lb)
+	// if err != nil {
+	// 	return false, err
+	// }
+
+	// // AllowedCIDRs will be nil if allowed CIDRs is not supported by the Octavia provider
+	// if allowedCIDRsSupported {
+	// 	lbStatus.AllowedCIDRs = getCanonicalAllowedCIDRs(openStackCluster)
+	// } else {
+	// 	lbStatus.AllowedCIDRs = nil
+	// }
 
 	portList := make([]int, 0, 1+len(lbSpec.AdditionalPorts))
 	portList = append(portList, apiServerPort)
