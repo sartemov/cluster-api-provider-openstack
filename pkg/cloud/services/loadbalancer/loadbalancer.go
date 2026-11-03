@@ -763,13 +763,20 @@ func (s *Service) ReconcileLoadBalancerMember(openStackCluster *infrav1.OpenStac
 			Tags:         openStackCluster.Spec.Tags,
 		}
 
-		if openStackCluster.Status.Network.ID != openStackCluster.Status.APIServerManagedLoadBalancer.LoadBalancerNetwork.ID {
-			primarySubnetID, err := s.getPrimarySubnetID(openStackCluster)
-			if err != nil {
-				return err
-			}
-			lbMemberOpts.SubnetID = primarySubnetID
+		// cloud.ru requires a subnet ID to create a load balancer member
+		primarySubnetID, err := s.getPrimarySubnetID(openStackCluster)
+		if err != nil {
+			return err
 		}
+		lbMemberOpts.SubnetID = primarySubnetID
+
+		// if openStackCluster.Status.Network.ID != openStackCluster.Status.APIServerManagedLoadBalancer.LoadBalancerNetwork.ID {
+		// 	primarySubnetID, err := s.getPrimarySubnetID(openStackCluster)
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// 	lbMemberOpts.SubnetID = primarySubnetID
+		// }
 
 		if _, err := s.waitForLoadBalancerActive(lbID); err != nil {
 			return err
