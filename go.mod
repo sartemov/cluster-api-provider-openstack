@@ -2,7 +2,7 @@ module sigs.k8s.io/cluster-api-provider-openstack
 
 go 1.26.0
 
-replace github.com/gophercloud/gophercloud/v2 => /home/asv/DevPlatform/github/gophercloud
+replace github.com/gophercloud/gophercloud/v2 => github.com/sartemov/gophercloud/v2 v2.0.2
 
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
