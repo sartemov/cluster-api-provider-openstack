@@ -23,6 +23,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/availabilityzones"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/subnets"
@@ -345,7 +346,7 @@ func (r *OpenStackClusterReconciler) reconcileNormal(ctx context.Context, scope 
 		return reconcile.Result{}, nil
 	}
 
-	computeService, err := compute.NewService(scope)
+	_, err := compute.NewService(scope)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
@@ -355,10 +356,18 @@ func (r *OpenStackClusterReconciler) reconcileNormal(ctx context.Context, scope 
 		return reconcile.Result{}, err
 	}
 
-	availabilityZones, err := computeService.GetAvailabilityZones()
-	if err != nil {
-		return ctrl.Result{}, err
+	// hardcoded for cloud.ru
+	availabilityZones := []availabilityzones.AvailabilityZone{
+		{
+			ZoneName:  "ru-moscow-1a",
+			ZoneState: availabilityzones.ZoneState{Available: true},
+		},
 	}
+
+	// availabilityZones, err := computeService.GetAvailabilityZones()
+	// if err != nil {
+	// 	return ctrl.Result{}, err
+	// }
 
 	// Populate failure domains only during initial provisioning. Before failure
 	// domain-aware subnet placement was introduced, CAPO populated this status
